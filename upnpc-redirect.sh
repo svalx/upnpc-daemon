@@ -1,0 +1,1 @@
+/usr/bin/upnpc-redirect.sh
