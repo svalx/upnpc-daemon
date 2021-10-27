@@ -11,10 +11,10 @@ for this task.
 
 ## Contents
 The upnpc-daemon containce following files:
-*upnpc-daemon.service* - oneshot systemd service unit
-*upnpc-redirection.sh* - a bash script called by upnpc-daemon.service
-*upnpc-daemon.timer*   - timer to start upnpc-daemon.service
-*ports.conf*           - drop-in file for the upnpc-daemon.service
+ - *upnpc-daemon.service* - oneshot systemd service unit
+ - *upnpc-redirection.sh* - a bash script called by upnpc-daemon.service
+ - *upnpc-daemon.timer*   - timer to start upnpc-daemon.service
+ - *ports.conf*           - drop-in file for the upnpc-daemon.service
 
 ## Requirements
 For redirect ports by upnpc-daemon you need:
@@ -29,6 +29,7 @@ Place the files in the following paths:
  - */etc/systemd/system/upnpc-daemon.timer*
  - */etc/systemd/system/upnpc-daemon.d/ports.conf*
  - */usr/bin/upnpc-redirection.sh*
+
 If these directories do not exist, then they need to be created.
 Note you need superuser priveleges for this and next actions.
 

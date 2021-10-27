@@ -1,1 +1,6 @@
-/etc/systemd/system/upnpc-daemon.service
+[Unit]
+Description=redirecting ports to localhost by uPnP
+
+[Service]
+Type=oneshot
+ExecStart=-/usr/bin/upnpc-redirect.sh

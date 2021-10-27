@@ -1,1 +1,10 @@
-/etc/systemd/system/upnpc-daemon.timer
+[Unit]
+Description=timer for redirecting ports by UPnP
+After=network-online.target
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=9min
+
+[Install]
+WantedBy=timers.target
