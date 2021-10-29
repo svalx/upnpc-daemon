@@ -50,7 +50,7 @@ check the output of upnpc-daemon unit like `journalctl -r --unit=upnpc-daemon`
 Don't forget about firewall configuration if it applicable.
 
 ## Distribution
-For get a latest version `git clone git@github.com:svalx/upnpc-daemon.git`.
+For get a latest version `git clone git@github.com:svalx/upnpc-daemon.git`  
 openSUSE rpm packages can be found in Open Build Service at
 https://build.opensuse.org/package/show/home:svalx/upnpc-daemon
 
