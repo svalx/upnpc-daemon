@@ -12,9 +12,10 @@ for this task.
 ## Contents
 The upnpc-daemon containce following files:
  - *upnpc-daemon.service* - oneshot systemd service unit
- - *upnpc-redirection.sh* - a bash script called by upnpc-daemon.service
+ - *upnpc-redirect.sh*    - a bash script called by upnpc-daemon.service
  - *upnpc-daemon.timer*   - timer to start upnpc-daemon.service
  - *ports.conf*           - drop-in file for the upnpc-daemon.service
+ - *schedule.conf*        - drop-in file for the upnpc-daemon.timer
 
 ## Requirements
 For redirect ports by upnpc-daemon you need:
@@ -27,8 +28,9 @@ For redirect ports by upnpc-daemon you need:
 Place the files in the following paths:
  - */etc/systemd/system/upnpc-daemon.service*
  - */etc/systemd/system/upnpc-daemon.timer*
- - */etc/systemd/system/upnpc-daemon.d/ports.conf*
- - */usr/bin/upnpc-redirection.sh*
+ - */etc/systemd/system/upnpc-daemon.service.d/ports.conf*
+ - */etc/systemd/system/upnpc-daemon.timer.d/schedule.conf*
+ - */usr/bin/upnpc-redirect.sh*
 
 If these directories do not exist, then they need to be created.
 Note you need superuser priveleges for this and next actions.
@@ -39,7 +41,7 @@ After files installation you need to specify a ports for redirecting in
 examples. Environment variables must follow the naming and numbering
 order exactly, do not use next var numbers with not defined previous -
 it will be cause of stoping processing.
-You can also adjust the update interval in *upnpc-daemon.timer*, default it
+You can also adjust the update interval in *schedule.conf*, default it
 set to 9 min since my test router has a 10-minute removal period for
 unused redirects.
 Execute `systemctl daemon-reload` after editing drop-in or timer files to
