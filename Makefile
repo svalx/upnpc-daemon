@@ -19,7 +19,7 @@ prefixpatch: upnpc-daemon.service
 	echo $(DESTDIR)
 
 installdirs: mkinstalldirs
-	./mkinstalldirs $(bindir) \
+	./mkinstalldirs $(bindir) $(sbindir) \
                         $(unitdir)/$(basename).service.d \
                         $(unitdir)/$(basename).timer.d
 install: all installdirs
