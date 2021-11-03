@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Add Makefile for installation and auxiliary mkinstalldirs script
 
 ## [0.1.1] - 2021-10-31
 ### Added

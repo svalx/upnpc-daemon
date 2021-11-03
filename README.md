@@ -26,11 +26,11 @@ For redirect ports by upnpc-daemon you need:
 
 ## Installation
 Place the files in the following paths:
- - */etc/systemd/system/upnpc-daemon.service*
- - */etc/systemd/system/upnpc-daemon.timer*
- - */etc/systemd/system/upnpc-daemon.service.d/ports.conf*
- - */etc/systemd/system/upnpc-daemon.timer.d/schedule.conf*
- - */usr/bin/upnpc-redirect.sh*
+ - */usr/local/systemd/system/upnpc-daemon.service*
+ - */usr/local/systemd/system/upnpc-daemon.timer*
+ - */usr/local/systemd/system/upnpc-daemon.service.d/ports.conf*
+ - */usr/local/systemd/system/upnpc-daemon.timer.d/schedule.conf*
+ - */usr/local/bin/upnpc-redirect.sh*
 
 If these directories do not exist, then they need to be created.
 Note you need superuser priveleges for this and next actions.
