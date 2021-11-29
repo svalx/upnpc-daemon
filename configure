@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+# configure script for upnpc-daemon - a simple systemd daemon for
+# redirecting ports on UPnP-enabled routers to localhost using miniupnpc.
+# Copyright (C) 2021 Alexey Svistunov.
+#
+# This configure script is free software: you have unlimited permission
+# to copy, distribute, and modify it.
+
+pkgname=upnpc-daemon
+read pkgversion < VERSION
+errstatus=0
+
+# defaults
+rclink=yes
+srcdir=src
+prefix=/usr/local
+
+pkg="Configure script for $pkgname v$pkgversion"
+
+usage="\
+Usage: $0 [OPTION]... [VAR=VALUE]...
+
+configure script for upnpc-daemon
+
+Options and variables: [defaults in brackets]
+  -h, --help                display this help and exit
+  -V, --version             output version information and exit
+  --enable-rclink[=yes|no]  create a softlink ${sbindir}/rcupnpc-daemon to 
+                            /usr/sbin/service that allows for a convenient
+			    restart of the service [yes]
+  --srcdir=DIR              find the sources in DIR [./${srcdir} or . or ..]
+  --prefix=DIR              install into DIR [${prefix}]
+  --sbindir=DIR             system admin executables directory [${prefix}/bin}]
+  --libexecdir=DIR          program executables [${prefix}/libexec}]
+  --datadir=DIR             documentation root [${prefix}/share]
+  --docdir=DIR              documentation root [${prefix}/share/doc]
+
+"
+
+# process command line arguments
+die() { echo "$*" >&2; exit 2; }  # complain to STDERR and exit with error
+needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --$OPT option"; fi; }
+
+function parse_param() {
+  while getopts hV-: OPT; do
+    # support long options: https://stackoverflow.com/a/28466267/519360
+    if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
+      OPT="${OPTARG%%=*}"       # extract long option name
+      OPTARG="${OPTARG#$OPT}"   # extract long option argument (may be empty)
+      OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
+    fi
+    case "$OPT" in
+      h | help )        echo "$usage" ;;
+      V | version )     echo "$pkg" ;;
+      enable-rclink )   if [ -z "$OPTARG" ]; then break; fi; rclink="$OPTARG" ;;
+      srcdir )          needs_arg; src="$OPTARG" ;;
+      prefix )          needs_arg; prefix="$OPTARG" ;;
+      sbindir )         needs_arg; sbindir="$OPTARG" ;;
+      libexecdir )      needs_arg; libexecdir="$OPTARG" ;;
+      datadir )         needs_arg; datadir="$OPTARG" ;;
+      docdir )          needs_arg; docdir="$OPTARG" ;;
+      * )               die "$usage" ;; # bad option
+    esac
+  done
+  shift $((OPTIND-1)) # remove parsed options and args from $@ list
+}
+
+function check_requires() {
+echo  
+}
+
+# start here
+echo "Configuring upnpc-daemon..."
+
+parse_param "$@"
+
+# set undefined variables
+if [ ! -v sbindir ]; then sbindir=${prefix}/sbin; fi;
+if [ ! -v libexecdir ]; then libexecdir=${prefix}/libexec; fi;
+if [ ! -v datadir ]; then datadir=${prefix}/share; fi;
+if [ ! -v docdir ]; then docdir=${datadir}/doc; fi;
+
+check_requires
+
+# if no errors - write Makefile
+if [ !errstatus ]; then
+
+cat > Makefile << EOF
+# Makefile for pnpc-daemon - a simple systemd daemon for redirecting
+# ports on UPnP-enabled routers to localhost using miniupnpc.
+# Copyright (C) 2021 Alexey Svistunov.
+#
+# This Makefile is free software: you have unlimited permission
+# to copy, distribute, and modify it.
+#
+# This file was generated automatically by configure. Don't edit it.
+EOF
+
+tee -a Makefile << EOF
+`if [ "$rclink" == "no" ]; then echo rcname =; fi;`
+PREFIX := ${prefix}
+srcdir := ${srcdir}
+sbindir := ${sbindir}
+libexecdir := ${libexecdir}
+docdir := ${docdir}
+
+pkgname := ${pkgname}
+pkgversion := ${pkgversion}
+
+EOF
+
+cat Makefile.in >> Makefile
+
+else
+
+die "$usage"
+
+fi;
+
+echo "Сreating Makefile..."
+echo "Done configuring, run 'make' and 'sudo make install' to install."
+exit $errstatus
