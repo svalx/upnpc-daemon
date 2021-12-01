@@ -1,10 +1,23 @@
 #!/usr/bin/env bash
-# configure script for upnpc-daemon - a simple systemd daemon for
-# redirecting ports on UPnP-enabled routers to localhost using miniupnpc.
-# Copyright (C) 2021 Alexey Svistunov.
-#
-# This configure script is free software: you have unlimited permission
-# to copy, distribute, and modify it.
+#  configure script for upnpc-daemon
+#  Copyright (C) 2021 Alexey Svistunov <svalx@svalx.net>
+
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#  This is not a real autoconf gemerated configure script, but complies
+#  with GNU specification "How Configuration Should Work" at
+#  https://www.gnu.org/prep/standards/html_node/Configuration.html
 
 pkgname=upnpc-daemon
 read pkgversion < VERSION
@@ -14,31 +27,35 @@ errstatus=0
 rclink=yes
 srcdir=src
 prefix=/usr/local
+no_create=
 
 pkg="Configure script for $pkgname v$pkgversion"
 
 usage="\
 Usage: $0 [OPTION]... [VAR=VALUE]...
 
-configure script for upnpc-daemon
+${pkg}
 
 Options and variables: [defaults in brackets]
-  -h, --help                display this help and exit
-  -V, --version             output version information and exit
-  --enable-rclink[=yes|no]  create a softlink ${sbindir}/rcupnpc-daemon to 
-                            /usr/sbin/service that allows for a convenient
-			    restart of the service [yes]
-  --srcdir=DIR              find the sources in DIR [./${srcdir} or . or ..]
-  --prefix=DIR              install into DIR [${prefix}]
-  --sbindir=DIR             system admin executables directory [${prefix}/bin}]
-  --libexecdir=DIR          program executables [${prefix}/libexec}]
-  --datadir=DIR             documentation root [${prefix}/share]
-  --docdir=DIR              documentation root [${prefix}/share/doc]
+  -h, --help                    display this help and exit
+  -V, --version                 output version information and exit
+  --enable-rclink[=yes|no]      create a softlink ${prefix}/sbin/rcupnpc-daemon to 
+                                /usr/sbin/service that allows for a convenient
+			        restart of the service [yes]
+  --enable-installdoc[=yes|no]  install README.md to standard docdir [no]
+  --no-create                   no (re)create config.status script
+  --srcdir=DIR                  find the sources in DIR [./${srcdir} or . or ..]
+  --prefix=DIR                  install into DIR [${prefix}]
+  --exec_prefix=DIR             base directory for arch-dependent executables [${prefix}]
+  --sbindir=DIR                 system admin executables directory [${prefix}/bin}]
+  --libexecdir=DIR              program executables [${prefix}/libexec}]
+  --datarootdir=DIR             root for read-only arch-independent data files [${prefix}/share]
+  --datadir=DIR                 arch-independent data files for this program [${prefix}/share]
+  --docdir=DIR                  documentation root [${prefix}/share/doc]
 
 "
 
-# process command line arguments
-die() { echo "$*" >&2; exit 2; }  # complain to STDERR and exit with error
+die() { echo "$* Exiting." >&2; exit 2; }  # complain to STDERR and exit with error
 needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --$OPT option"; fi; }
 
 function parse_param() {
@@ -50,41 +67,134 @@ function parse_param() {
       OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
     fi
     case "$OPT" in
-      h | help )        echo "$usage" ;;
-      V | version )     echo "$pkg" ;;
-      enable-rclink )   if [ -z "$OPTARG" ]; then break; fi; rclink="$OPTARG" ;;
-      srcdir )          needs_arg; src="$OPTARG" ;;
-      prefix )          needs_arg; prefix="$OPTARG" ;;
-      sbindir )         needs_arg; sbindir="$OPTARG" ;;
-      libexecdir )      needs_arg; libexecdir="$OPTARG" ;;
-      datadir )         needs_arg; datadir="$OPTARG" ;;
-      docdir )          needs_arg; docdir="$OPTARG" ;;
-      * )               die "$usage" ;; # bad option
+      h | help )          echo "$usage"; exit 0 ;;
+      V | version )       echo "$pkg"; exit 0 ;;
+      enable-rclink )     if [ -z "$OPTARG" ]; then break; fi; rclink="$OPTARG" ;;
+      no-create)          no_create=yes ;;
+      enable-installdoc)  if [ -z "$OPTARG" ]; then break; fi; installdoc="$OPTARG" ;;
+      srcdir )            needs_arg; srcdir="$OPTARG" ;;
+      prefix )            needs_arg; prefix="$OPTARG" ;;
+      exec_prefix )       needs_arg; exec_prefix="$OPTARG" ;;
+      sbindir )           needs_arg; sbindir="$OPTARG" ;;
+      libexecdir )        needs_arg; libexecdir="$OPTARG" ;;
+      datarootdir )       needs_arg; datarootdir="$OPTARG" ;;
+      datadir )           needs_arg; datadir="$OPTARG" ;;
+      docdir )            needs_arg; docdir="$OPTARG" ;;
+      * )                 die "$usage" ;; # bad option
     esac
   done
   shift $((OPTIND-1)) # remove parsed options and args from $@ list
 }
 
 function check_requires() {
-echo  
+  echo -n "Checking for Bash version... "
+  if [ "${BASH_VERSION:0:3}" \> "4.1" ]; then
+    echo "Ok"
+  else
+    echo Fail
+    echo "Warning! Bash version must be 4.2 or higher, but your have ${BASH_VERSION}"
+    errstatus=1
+  fi
+
+  echo -n "Checking for systemd... "
+  which systemctl > /dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    echo "Ok"
+  else
+    echo Fail
+    echo "Warning! You are need a systemd-enabled system for upnpc-daemon running."
+    errstatus=1
+  fi
+
+  echo -n "Checking for MiniUPnPc... "
+  which upnpc > /dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    echo "Ok"
+  else
+    echo Fail
+    echo "Warning! upnpc-daemon is a MiniUPnPc wrapper, and you need for installed it on a target host."
+    errstatus=1
+  fi
+
+  echo -n "Checking for service... "
+  which service > /dev/null 2>&1 || ls /usr/sbin/service > /dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    echo "Ok"
+  else
+    echo Fail
+    echo "Warning! upnpc-daemon will try to create soft link to legacy service manager,"
+    echo "but \"service\" binary is not found. Use --enable-rclink=no to avoid this behavior."
+    errstatus=1
+  fi
+
+  if [ $errstatus -eq 1 ]; then
+    echo
+    echo "Warnings only make sense about the installation on the target machine,"
+    echo "ignore them when creating an installation packages."
+    echo
+  fi
+}
+
+function find_src() {
+  srctrigger=${pkgname}.service.in
+  srcdirtext=${srcdir}" or . or .."
+  echo -n "Search for source directory... "
+  if [ -r "${srcdir}/${srctrigger}" ] ; then
+    true
+  elif [ -r "./${srctrigger}" ] ; then
+    srcdir=.
+  elif [ -r "../${srctrigger}" ] ; then
+    srcdir=..
+  else
+    echo "Fail"
+    die "Can't find sources in ${srcdirtext}, (at least ${srctrigger} is missing)
+Use --srcdir option to specify it."
+  fi
+  echo "Ok"
+}
+
+function write_config.status() {
+echo
+echo "Creating config.status"
+rm -f config.status
+cat > config.status << EOF
+#!/usr/bin/env bash
+# This file was generated automatically by configure. Don't edit.
+# Run this file to recreate the current configuration.
+#
+# This script is free software: you have unlimited permission
+# to copy, distribute, and modify it.
+
+exec /bin/bash $0 ${args} --no-create
+EOF
+chmod +x config.status
 }
 
 # start here
-echo "Configuring upnpc-daemon..."
 
+# process command line arguments
+args="$*"
 parse_param "$@"
 
 # set undefined variables
-if [ ! -v sbindir ]; then sbindir=${prefix}/sbin; fi;
-if [ ! -v libexecdir ]; then libexecdir=${prefix}/libexec; fi;
-if [ ! -v datadir ]; then datadir=${prefix}/share; fi;
-if [ ! -v docdir ]; then docdir=${datadir}/doc; fi;
+if [ ! -v exec_prefix ]; then exec_prefix=${prefix}; fi
+if [ ! -v sbindir ]; then sbindir=${exec_prefix}/sbin; fi
+if [ ! -v libexecdir ]; then libexecdir=${exec_prefix}/libexec; fi
+if [ ! -v datarootdir ]; then datarootdir=${prefix}/share; fi
+if [ ! -v datadir ]; then datadir=${datarootdir}; fi
+if [ ! -v docdir ]; then docdir=${datadir}/doc; fi
 
+echo "Configuring $pkgname v$pkgversion..."
+echo
 check_requires
 
-# if no errors - write Makefile
-if [ !errstatus ]; then
+find_src
 
+if [ -z "${no_create}" ] ; then write_config.status; fi
+
+# if no errors - write Makefile
+echo "Сreating Makefile..."
+rm -f Makefile
 cat > Makefile << EOF
 # Makefile for pnpc-daemon - a simple systemd daemon for redirecting
 # ports on UPnP-enabled routers to localhost using miniupnpc.
@@ -97,9 +207,10 @@ cat > Makefile << EOF
 EOF
 
 tee -a Makefile << EOF
-`if [ "$rclink" == "no" ]; then echo rcname =; fi;`
-PREFIX := ${prefix}
+`if [ "$rclink" == "no" ]; then echo rcname =; fi`
+`if [ "$installdoc" == "yes" ]; then echo installdoc = install-doc; fi`
 srcdir := ${srcdir}
+PREFIX := ${prefix}
 sbindir := ${sbindir}
 libexecdir := ${libexecdir}
 docdir := ${docdir}
@@ -109,14 +220,12 @@ pkgversion := ${pkgversion}
 
 EOF
 
-cat Makefile.in >> Makefile
+cat ${srcdir}/Makefile.in >> Makefile 
 
+if [ -n Makefile ]; then
+  echo "Done configuring, run 'make' and 'sudo make install' to install."
 else
+  die "Fail! Makefile is no created. Check for permissions or other stuff..."
+fi
 
-die "$usage"
-
-fi;
-
-echo "Сreating Makefile..."
-echo "Done configuring, run 'make' and 'sudo make install' to install."
 exit $errstatus

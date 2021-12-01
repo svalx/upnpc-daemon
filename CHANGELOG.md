@@ -2,9 +2,22 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
-- Add Makefile for installation and auxiliary mkinstalldirs script
-- Move systemd units, drop-in and main script to src diretory
-- Patch upnpc-daemon.service with current prefix path
+
+## [0.2.0] - 2021-11-29
+### Added
+- configure upnpc-redirect location in upnpc-daemon.service by make
+- installer based on GNU make
+- auxiliary mkinstalldirs and install-sh scripts
+- installation instructions isolated into a separate INSTALL.md file
+
+### Changed
+- upnpc-daemon.service moved to src/upnpc-daemon.service.in template
+- upnpc-redirect.sh moved to upnpc-redirect
+- LICENSE file moved to COPYING for according GNU Releases recommendations
+- documentation completion
+
+### Fixed
+- many typos in documentation, scripts and comments
 
 ## [0.1.1] - 2021-10-31
 ### Added

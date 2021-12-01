@@ -17,63 +17,67 @@ docdir := $(DESTDIR)${docdir}/${pkgname}
 #Files
 basename := upnpc-daemon
 scriptname := upnpc-redirect
-exec = $(srcdir)/$(scriptname)
-serviceunit = $(srcdir)/$(basename).service
-timerunit = $(srcdir)/$(basename).timer
+exec = $(scriptname)
+serviceunit = $(basename).service
+timerunit = $(basename).timer
 units = $(serviceunit) $(timerunit)
-ports.conf = $(srcdir)/ports.conf
-schedule.conf = $(srcdir)/schedule.conf
+ports.conf = ports.conf
+schedule.conf = schedule.conf
 drop-ins = $(ports.conf) $(schedule.conf)
 allfiles = $(exec) $(drop-ins) $(units)
 service := /usr/sbin/service
+pkg=$(pkgname)-$(pkgversion)
 rcname ?= $(sbindir)/rc$(basename)
 
-.PHONY: all installdirs install uninstall clean distclean dist install-doc $(rcname)
+.PHONY: all installdirs install uninstall install-doc uninstall-doc clean distclean dist
 
 all: $(allfiles)
 
-$(serviceunit): $(serviceunit).in
+$(serviceunit): $(srcdir)/$(serviceunit).in
 	cp $^ $@
 	echo ExecStart=-$(libexecdir)/$(scriptname) >> $@
 
-installdirs: $(INSTALL_DIRS)
-	$^ $(sbindir) $(libexecdir) $(portsdir) $(scheduledir)
-
 $(rcname):
 	$(LN) $(service) $@
+
+installdirs: $(INSTALL_DIRS)
+	$^ $(sbindir) $(libexecdir) $(portsdir) $(scheduledir)
 
 install-doc: README.md
 	$(INSTALL_DIRS) $(docdir)
 	$(INSTALL_DATA) $^ $(docdir)
 
-install: all installdirs install-doc $(rcname)
+install: all installdirs $(rcname) $(installdoc)
 	$(INSTALL_PROGRAM) $(exec) $(libexecdir)
+	$(INSTALL_DATA) $(units) $(unitdir)
 	$(INSTALL_DATA) $(ports.conf) $(portsdir)
 	$(INSTALL_DATA) $(schedule.conf) $(scheduledir)
-	$(INSTALL_DATA) $(units) $(unitdir)
 
-uninstall: 
-	$(RM) $(units:$(srcdir)%=$(unitdir)%) \
+uninstall-doc:
+	$(RM) $(docdir)
+	
+uninstall: uninstall-doc
+	$(RM) $(addprefix $(unitdir)/,$(units)) \
               $(libexecdir)/$(scriptname) \
-              $(portsdir) $(scheduledir) $(rcname) 
+              $(portsdir) $(scheduledir) $(rcname)
+
 clean:
-	$(RM) $(serviceunit)
+	$(RM) $(serviceunit) $(pkg).tar.gz
 
-dist: $(SRCS) $(AUX)
-	echo tar-`sed \
-             -e '/version_string/!d' \
-             -e 's/[^0-9.]*\([0-9.]*\).*/\1/' \
-             -e q
-	version.c` > .fname
-	-rm -rf `cat .fname`
-	mkdir `cat .fname`
-	ln $(SRCS) $(AUX) `cat .fname`
-	tar chZf `cat .fname`.tar.Z `cat .fname`
-	-rm -rf `cat .fname` .fname
+dist: distclean
+	@echo "Creating $(pkg).tar.gz..."
+	mkdir $(pkg) && cd $(pkg) && $(LN) ../* .
+	$(RM) $(pkg) && cd ..
+	tar -chzf $(pkg).tar.gz $(pkg)/* && $(RM) $(pkg)
 
-Makefile: Makefile.in VERSION
-	./configure
+Makefile: ${srcdir}/Makefile.in VERSION config.status
+	$(RM) Makefile
+	./config.status
+
+# Not impliemented yet
+rpm: $(pkgname).spec
+		rpmbuild -ba --clean $<
 
 distclean: clean
-	$(RM) Makefile
+	$(RM) Makefile config.status
 
