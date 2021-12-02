@@ -80,7 +80,6 @@ function parse_param() {
       datarootdir )       needs_arg; datarootdir="$OPTARG" ;;
       datadir )           needs_arg; datadir="$OPTARG" ;;
       docdir )            needs_arg; docdir="$OPTARG" ;;
-      * )                 die "$usage" ;; # bad option
     esac
   done
   shift $((OPTIND-1)) # remove parsed options and args from $@ list
