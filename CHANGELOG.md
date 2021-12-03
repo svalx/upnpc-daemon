@@ -2,9 +2,15 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+## [0.2.1] - 2021-12-03
+### Changed
+- change shebang in upnpc-redirect script for fix 'env-script-interpreter' rpmlint error
+
 ### Fixed
 - tar creation in dist target
-- stopping when wrong arguments
+- stopping when wrong arguments for configure script
+- disable errstatus exit code return for configure script to avoid OBS build stopped
 
 ## [0.2.0] - 2021-11-29
 ### Added
