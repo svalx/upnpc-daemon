@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 #  Script for calling from the upnpc-daemon.service
 #  Copyright (C) 2021 Alexey Svistunov <svalx@svalx.net>
 

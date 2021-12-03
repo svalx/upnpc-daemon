@@ -226,5 +226,3 @@ if [ -n Makefile ]; then
 else
   die "Fail! Makefile is no created. Check for permissions or other stuff..."
 fi
-
-exit $errstatus

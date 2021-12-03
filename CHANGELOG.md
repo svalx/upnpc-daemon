@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Fixed
+- tar creation in dist target
+- stopping when wrong arguments
 
 ## [0.2.0] - 2021-11-29
 ### Added

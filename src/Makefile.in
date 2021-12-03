@@ -66,9 +66,8 @@ clean:
 
 dist: distclean
 	@echo "Creating $(pkg).tar.gz..."
-	mkdir $(pkg) && cd $(pkg) && $(LN) ../* .
-	$(RM) $(pkg) && cd ..
-	tar -chzf $(pkg).tar.gz $(pkg)/* && $(RM) $(pkg)
+	$(INSTALL_DIRS) $(pkg) && cd $(pkg) && $(LN) ../* . && $(RM) $(pkg)
+	tar -chzf $(pkg).tar.gz $(pkg) && $(RM) $(pkg)
 
 Makefile: ${srcdir}/Makefile.in VERSION config.status
 	$(RM) Makefile
