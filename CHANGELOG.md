@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.2] - 2021-12-04
+### Changed
+- drop-in files directories moved to /etc
+- a more suitable OBS URL
+
 ## [0.2.1] - 2021-12-03
 ### Changed
 - change shebang in upnpc-redirect script for fix 'env-script-interpreter' rpmlint error

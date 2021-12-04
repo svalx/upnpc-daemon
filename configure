@@ -27,6 +27,7 @@ errstatus=0
 rclink=yes
 srcdir=src
 prefix=/usr/local
+sysconfdir=/etc
 no_create=
 
 pkg="Configure script for $pkgname v$pkgversion"
@@ -41,12 +42,13 @@ Options and variables: [defaults in brackets]
   -V, --version                 output version information and exit
   --enable-rclink[=yes|no]      create a softlink ${prefix}/sbin/rcupnpc-daemon to 
                                 /usr/sbin/service that allows for a convenient
-			        restart of the service [yes]
+			        restart of the service [${rclink}]
   --enable-installdoc[=yes|no]  install README.md to standard docdir [no]
   --no-create                   no (re)create config.status script
   --srcdir=DIR                  find the sources in DIR [./${srcdir} or . or ..]
   --prefix=DIR                  install into DIR [${prefix}]
   --exec_prefix=DIR             base directory for arch-dependent executables [${prefix}]
+  --sysconfdir=DIR              system configuration files [${sysconfdir}]
   --sbindir=DIR                 system admin executables directory [${prefix}/bin}]
   --libexecdir=DIR              program executables [${prefix}/libexec}]
   --datarootdir=DIR             root for read-only arch-independent data files [${prefix}/share]
@@ -54,7 +56,6 @@ Options and variables: [defaults in brackets]
   --docdir=DIR                  documentation root [${prefix}/share/doc]
 
 "
-
 die() { echo "$* Exiting." >&2; exit 2; }  # complain to STDERR and exit with error
 needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --$OPT option"; fi; }
 
@@ -75,6 +76,7 @@ function parse_param() {
       srcdir )            needs_arg; srcdir="$OPTARG" ;;
       prefix )            needs_arg; prefix="$OPTARG" ;;
       exec_prefix )       needs_arg; exec_prefix="$OPTARG" ;;
+      sysconfdir )        needs_arg; sysconfdir="$OPTARG" ;;
       sbindir )           needs_arg; sbindir="$OPTARG" ;;
       libexecdir )        needs_arg; libexecdir="$OPTARG" ;;
       datarootdir )       needs_arg; datarootdir="$OPTARG" ;;
@@ -177,6 +179,7 @@ parse_param "$@"
 
 # set undefined variables
 if [ ! -v exec_prefix ]; then exec_prefix=${prefix}; fi
+if [ ! -v sysconfdir ]; then sysconfdir=${prefix}/etc; fi
 if [ ! -v sbindir ]; then sbindir=${exec_prefix}/sbin; fi
 if [ ! -v libexecdir ]; then libexecdir=${exec_prefix}/libexec; fi
 if [ ! -v datarootdir ]; then datarootdir=${prefix}/share; fi
@@ -210,6 +213,7 @@ tee -a Makefile << EOF
 `if [ "$installdoc" == "yes" ]; then echo installdoc = install-doc; fi`
 srcdir := ${srcdir}
 PREFIX := ${prefix}
+sysconfdir := ${sysconfdir}
 sbindir := ${sbindir}
 libexecdir := ${libexecdir}
 docdir := ${docdir}

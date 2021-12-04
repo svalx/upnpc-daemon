@@ -6,9 +6,9 @@ You may install upnpc-daemon in a different ways:
 ____
 
 ## Installing Linux package
-At this moment available rpm packages in [Open Build Service](https://build.opensuse.org/package/show/home:svalx/upnpc-daemon) for openSUSE Leap 15.3 and CentOS/RHEL/OL 8:  
-### openSUSE Leap 15.3
-    # zypper addrepo --repo https://download.opensuse.org/repositories/home:/svalx/openSUSE_Leap_15.3/home:svalx.repo
+At this moment available rpm packages in [Open Build Service](https://software.opensuse.org/package/upnpc-daemon) for openSUSE Leap 15.3/SLE 15 SP3 and CentOS/RHEL/OL 8:  
+### openSUSE Leap 15.3/SLE 15 SP3
+    # zypper addrepo --repo https://download.opensuse.org/repositories/home:/svalx/15.3/home:svalx.repo
     # zypper install upnpc-daemon
 ### CentOS/RHEL/OL 8
     # dnf config-manager --add-repo https://download.opensuse.org/repositories/home:svalx/CentOS_8/home:svalx.repo
@@ -59,10 +59,10 @@ You may manually install upnpc-daemon, it's not so difficult:
 	`$ echo ExecStart=-/usr/local/libexec/upnpc-redirect >> src/upnpc-daemon.service.in`
 	`$ mv src/upnpc-daemon.service.in upnpc-daemon.service`
 4. Place the files in the following paths:
-	`# mkdir -p /usr/local/lib/systemd/system/{upnpc-daemon.spervice.d,upnpc-daemon.timer.d} /usr/local/libexec`
+	`# mkdir -p /etc/systemd/system/{upnpc-daemon.spervice.d,upnpc-daemon.timer.d} /usr/local/libexec`
 	`# install -m 644 upnpc-daemon.service upnpc-daemon.timer /usr/local/lib/systemd/system`
-	`# install -m 644 ports.conf /usr/local/lib/systemd/system/upnpc-daemon.service.d`
-	`# install -m 644 schedule.conf /usr/local/lib/systemd/system/upnpc-daemon.timer.d`
+	`# install -m 644 ports.conf /etc/systemd/system/upnpc-daemon.service.d`
+	`# install -m 644 schedule.conf /etc/systemd/system/upnpc-daemon.timer.d`
 	`# install upnpc-redirect /usr/local/libexec`  
    If these directories do not exist, then they need to be created. Note you'll
    probably need superuser privileges for this and next actions. 

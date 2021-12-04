@@ -9,8 +9,8 @@ LN = /usr/bin/ln -sf
 #Directories with DESTDIR support
 libexecdir := $(DESTDIR)${libexecdir}
 unitdir := $(DESTDIR)$(PREFIX)/lib/systemd/system
-portsdir = $(unitdir)/$(basename).service.d
-scheduledir = $(unitdir)/$(basename).timer.d
+portsdir = $(DESTDIR)$(sysconfdir)/systemd/system/$(basename).service.d
+scheduledir = $(DESTDIR)$(sysconfdir)/systemd/system/$(basename).timer.d
 sbindir := $(DESTDIR)$(sbindir)
 docdir := $(DESTDIR)${docdir}/${pkgname}
 
@@ -41,7 +41,7 @@ $(rcname):
 	$(LN) $(service) $@
 
 installdirs: $(INSTALL_DIRS)
-	$^ $(sbindir) $(libexecdir) $(portsdir) $(scheduledir)
+	$^ $(sbindir) $(libexecdir) ${unitdir} $(portsdir) $(scheduledir)
 
 install-doc: README.md
 	$(INSTALL_DIRS) $(docdir)
