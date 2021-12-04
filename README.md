@@ -53,8 +53,8 @@ Don't forget about firewall configuration if it applicable.
 
 ## Distribution
 For get a latest version `$ git clone git@github.com:svalx/upnpc-daemon.git`  
-openSUSE Leap 15.3 and CentOS/RHEL/OL 8 rpm packages can be found in Open Build Service at  
-[Open Build Service](https://build.opensuse.org/package/show/home:svalx/upnpc-daemon)
+openSUSE and CentOS/RHEL/OL 8 rpm packages can be found in Open Build Service at  
+[Open Build Service](https://software.opensuse.org/package/upnpc-daemon)
 
 ## Limitations
  - Not all routers can redirect ports from privileged range
