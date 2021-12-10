@@ -201,11 +201,8 @@ find_src
 if [ -z "${no_create}" ] ; then write_config.status; fi
 
 if [ "$dropins" == "yes" ]; then
-portsdir=${sysconfdir}/systemd/system/${pkgname}.service.d
-scheduledir=${sysconfdir}/systemd/system/${pkgname}.timer.d
-else
-portsdir=${datadir}/${pkgname}
-scheduledir=${datadir}/${pkgname}
+portsdir="\$(DESTDIR)${sysconfdir}/systemd/system/${pkgname}.service.d"
+scheduledir="\$(DESTDIR)${sysconfdir}/systemd/system/${pkgname}.timer.d"
 fi
 
 if [ "$installdoc" == "yes" ]; then
@@ -235,8 +232,8 @@ pkgversion := ${pkgversion}
 srcdir := ${srcdir}
 libexecdir := \$(DESTDIR)${libexecdir}
 unitdir := \$(DESTDIR)${prefix}/lib/systemd/system
-portsdir := \$(DESTDIR)${portsdir}
-scheduledir := \$(DESTDIR)${scheduledir}
+portsdir := ${portsdir}
+scheduledir := ${scheduledir}
 rcname = ${rcname}
 docdir := ${docdir}
 

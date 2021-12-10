@@ -13,13 +13,18 @@ units = $(serviceunit) $(pkgname).timer
 drop-ins := ports.conf schedule.conf
 service ?= /usr/sbin/service
 pkg := $(pkgname)-$(pkgversion)
-docs := README.md CHANGELOG.md
+docs := README.md
 ifdef docdir
-install-doc := $(addprefix $(docdir)/,$(docs))
+examples := $(docdir)/examples
+install-doc := $(addprefix $(docdir)/,$(docs)) \
+               $(addprefix $(examples)/,$(drop-ins))
+endif
+ifdef portsdir
+install-drop-ins = $(portsdir)/ports.conf $(scheduledir)/schedule.conf
 endif
 
 .PHONY: all installdirs install uninstall uninstall-doc rpm \
-       	clean distclean dist install-drop-ins uninstall-drop-ins
+       	clean distclean dist uninstall-drop-ins
 
 all: $(exec) $(drop-ins) $(units)
 
@@ -32,16 +37,17 @@ $(rcname):
 
 installdirs:
 	@$(INSTALL_DIRS) $(dir $(rcname)) $(portsdir) $(scheduledir) \
-                        $(libexecdir) $(unitdir) $(docdir)
+                        $(libexecdir) $(unitdir) $(docdir) $(examples)
 
-$(install-doc): $(docs)
-	$(INSTALL_DATA) $^ $(docdir)
+$(install-doc): $(docs) $(drop-ins)
+	$(INSTALL_DATA) $(docs) $(docdir)
+	$(INSTALL_DATA) $(drop-ins) $(examples)
 
-install-drop-ins: $(dropins)
+$(install-drop-ins): $(drop-ins)
 	$(INSTALL_DATA) ports.conf $(portsdir)
 	$(INSTALL_DATA) schedule.conf $(scheduledir)
 
-install: all installdirs install-drop-ins $(install-doc) $(rcname)
+install: all installdirs $(install-drop-ins) $(install-doc) $(rcname)
 	$(INSTALL_PROGRAM) $(exec) $(libexecdir)
 	$(INSTALL_DATA) $(units) $(unitdir)
 

@@ -4,6 +4,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Changed
+- drop-in files installs to docdir/examples when --enabled-installdoc
+- never installs drop-in files to datadir
 
 ## [0.2.3] - 2021-12-10
 ### Changed

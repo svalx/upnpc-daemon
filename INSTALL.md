@@ -27,7 +27,7 @@ You need *GNU make* for this option
    `$ make`
 4. Type 'make install' to install the program
    (you'll probably need superuser privileges for this action)  
-`# make install`
+   `# make install`
 
 upnpc-daemon will be installed in */usr/local* prefix according FHS.
 All needed directories will be created automatically.
@@ -37,40 +37,45 @@ Some installation properties may be set by configure script:
  - install paths
  - source directories
  - softlink creation to *service* binary
- - README.md installation to a package docdir
+ - README.md and drop-in file examples installation to a package docdir
  - systemd drop-in files installations to goal directories
 
 **Type `./configure --help` for full usage instructions.**  
-After *configure* executed, it create a *config.status* script, that store
-an original configuration options and may be used for reconfigure
-without any metadata lost.
-*Makefile*, created by *configure* contains some standard targets like *dist*,
-that can be used for your purposes. Makefile also supports the DESTDIR parameter,
-which will allow you to install the program in another root directory like this:  
-`# make install DESTDIR=/tmp`
+After *configure* executed, it created a *config.status* script,
+that store an original configuration options and may be used for
+reconfigure without any  metadata lost. *Makefile*, created by
+*configure* contains some standard targets like *dist*, that can
+be used for your purposes. Makefile also supports the DESTDIR
+parameter, which will allow you to install the program in another
+root directory like this:  
+   `# make install DESTDIR=/tmp`
 
 ## Manual install
 You may manually install upnpc-daemon, it's not so difficult:
 1. First of all, decide in which prefix the program will be installed. By default,
    I suggest */usr/local*, and the following examples will take this into account.
 2. Unpack the archive and enter to target directory:
-    `$ tar -xf upnpc-daemon-[version].tar.gz`
-    `$ cd upnpc-daemon-[version]`
+   `$ tar -xf upnpc-daemon-[version].tar.gz`
+   `$ cd upnpc-daemon-[version]`
 3. Edit src/upnpc-daemon.service.in and rename it to upnpc-daemon.service 
-	`$ echo ExecStart=-/usr/local/libexec/upnpc-redirect >> src/upnpc-daemon.service.in`
-	`$ mv src/upnpc-daemon.service.in upnpc-daemon.service`
+   `$ echo ExecStart=-/usr/local/libexec/upnpc-redirect >> src/upnpc-daemon.service.in`
+   `$ mv src/upnpc-daemon.service.in upnpc-daemon.service`
 4. Place the files in the following paths:
-	`# mkdir -p /etc/systemd/system/{upnpc-daemon.spervice.d,upnpc-daemon.timer.d} /usr/local/libexec`
-	`# install -m 644 upnpc-daemon.service upnpc-daemon.timer /usr/local/lib/systemd/system`
-	`# install -m 644 ports.conf /etc/systemd/system/upnpc-daemon.service.d`
-	`# install -m 644 schedule.conf /etc/systemd/system/upnpc-daemon.timer.d`
-	`# install upnpc-redirect /usr/local/libexec`  
+   `# install -m 644 -D -t /usr/local/lib/systemd/system upnpc-daemon.service upnpc-daemon.timer`
+   `# install -D -t /usr/local/libexec upnpc-redirect`
+   For set a ports that need be forwarded and custom update schedule
+   you can install a drop-in files (not necessary, аn another option
+   for tune settings using `systemctl edit` tool):  
+   `# install -m 644 -D -t /etc/systemd/system/upnpc-daemon.service.d ports.conf`
+   `# install -m 644 -D -t /etc/systemd/system/upnpc-daemon.timer.d schedule.conf`  
    If these directories do not exist, then they need to be created. Note you'll
    probably need superuser privileges for this and next actions. 
 5. Optionally, you can create a softlink */usr/local/sbin/rcupnpc-daemon* to
    */usr/sbin/service* that allows for a convenient restart of the service.
-	`# ln -sf /usr/sbin/service /usr/local/sbin/rcupnpc-daemon`  
-   Also you can install README.md in the directory tree to have usage instructions at hand:  
-   `# mkdir -p /usr/local/share/doc/upnpc-daemon`  
-   `# install -m 644 README.md /usr/local/share/doc/upnpc-daemon`  
+   `# ln -sf /usr/sbin/service /usr/local/sbin/rcupnpc-daemon`  
+   Also you can install README.md and drop-in files examples in the
+   directory tree to have usage instructions at hand:  
+   `# mkdir -p /usr/local/share/doc/upnpc-daemon/examples`  
+   `# install -m 644 README.md /usr/local/share/doc/upnpc-daemon`
+   `# install -m 644 ports.conf schedule.conf /usr/local/share/doc/upnpc-daemon/examples`  
 *install-sh* and *mkinstalldirs* scrips available in the *tools* subdirectory, it can be used for safe directory creations and file installation if native install tool not avalilable.
