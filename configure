@@ -40,11 +40,14 @@ ${pkg}
 Options and variables: [defaults in brackets]
   -h, --help                    display this help and exit
   -V, --version                 output version information and exit
+  --no-create                   no (re)create config.status script
   --enable-rclink[=yes|no]      create a softlink ${prefix}/sbin/rcupnpc-daemon to 
                                 /usr/sbin/service that allows for a convenient
 			        restart of the service [${rclink}]
   --enable-installdoc[=yes|no]  install README.md to standard docdir [no]
-  --no-create                   no (re)create config.status script
+  --enable-dropins[=yes|no]     install systemd drop-in files to appropriated directories
+                                under /etc/systemd/system/, otherwise it will be installed
+				to package datadir as examples [no]
   --srcdir=DIR                  find the sources in DIR [./${srcdir} or . or ..]
   --prefix=DIR                  install into DIR [${prefix}]
   --exec_prefix=DIR             base directory for arch-dependent executables [${prefix}]
@@ -68,20 +71,23 @@ function parse_param() {
       OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
     fi
     case "$OPT" in
-      h | help )          echo "$usage"; exit 0 ;;
-      V | version )       echo "$pkg"; exit 0 ;;
-      enable-rclink )     if [ -z "$OPTARG" ]; then break; fi; rclink="$OPTARG" ;;
-      no-create)          no_create=yes ;;
-      enable-installdoc)  if [ -z "$OPTARG" ]; then break; fi; installdoc="$OPTARG" ;;
-      srcdir )            needs_arg; srcdir="$OPTARG" ;;
-      prefix )            needs_arg; prefix="$OPTARG" ;;
-      exec_prefix )       needs_arg; exec_prefix="$OPTARG" ;;
-      sysconfdir )        needs_arg; sysconfdir="$OPTARG" ;;
-      sbindir )           needs_arg; sbindir="$OPTARG" ;;
-      libexecdir )        needs_arg; libexecdir="$OPTARG" ;;
-      datarootdir )       needs_arg; datarootdir="$OPTARG" ;;
-      datadir )           needs_arg; datadir="$OPTARG" ;;
-      docdir )            needs_arg; docdir="$OPTARG" ;;
+      h | help )           echo "$usage"; exit 0 ;;
+      V | version )        echo "$pkg"; exit 0 ;;
+      no-create )          no_create=yes ;;
+      enable-rclink )      if [ -z "$OPTARG" ]; then true; fi; rclink="$OPTARG" ;;
+      enable-dropins )     if [ -z "$OPTARG" ]; then dropins=yes; else
+                           dropins="$OPTARG"; fi ;;
+      enable-installdoc )  if [ -z "$OPTARG" ]; then installdoc=yes; else
+	                   installdoc="$OPTARG"; fi ;;
+      srcdir )             needs_arg; srcdir="$OPTARG" ;;
+      prefix )             needs_arg; prefix="$OPTARG" ;;
+      exec_prefix )        needs_arg; exec_prefix="$OPTARG" ;;
+      sysconfdir )         needs_arg; sysconfdir="$OPTARG" ;;
+      sbindir )            needs_arg; sbindir="$OPTARG" ;;
+      libexecdir )         needs_arg; libexecdir="$OPTARG" ;;
+      datarootdir )        needs_arg; datarootdir="$OPTARG" ;;
+      datadir )            needs_arg; datadir="$OPTARG" ;;
+      docdir )             needs_arg; docdir="$OPTARG" ;;
     esac
   done
   shift $((OPTIND-1)) # remove parsed options and args from $@ list
@@ -194,7 +200,22 @@ find_src
 
 if [ -z "${no_create}" ] ; then write_config.status; fi
 
+if [ "$dropins" == "yes" ]; then
+portsdir=${sysconfdir}/systemd/system/${pkgname}.service.d
+scheduledir=${sysconfdir}/systemd/system/${pkgname}.timer.d
+else
+portsdir=${datadir}/${pkgname}
+scheduledir=${datadir}/${pkgname}
+fi
+
+if [ "$installdoc" == "yes" ]; then
+docdir="\$(DESTDIR)${docdir}/${pkgname}"; else
+docdir=; fi
+if [ "$rclink" == "no" ]; then rcname=; else
+rcname="\$(DESTDIR)${sbindir}/rc${pkgname}"; fi
+
 # if no errors - write Makefile
+echo
 echo "Сreating Makefile..."
 rm -f Makefile
 cat > Makefile << EOF
@@ -209,17 +230,15 @@ cat > Makefile << EOF
 EOF
 
 tee -a Makefile << EOF
-`if [ "$rclink" == "no" ]; then echo rcname =; fi`
-`if [ "$installdoc" == "yes" ]; then echo installdoc = install-doc; fi`
-srcdir := ${srcdir}
-PREFIX := ${prefix}
-sysconfdir := ${sysconfdir}
-sbindir := ${sbindir}
-libexecdir := ${libexecdir}
-docdir := ${docdir}
-
 pkgname := ${pkgname}
 pkgversion := ${pkgversion}
+srcdir := ${srcdir}
+libexecdir := \$(DESTDIR)${libexecdir}
+unitdir := \$(DESTDIR)${prefix}/lib/systemd/system
+portsdir := \$(DESTDIR)${portsdir}
+scheduledir := \$(DESTDIR)${scheduledir}
+rcname = ${rcname}
+docdir := ${docdir}
 
 EOF
 

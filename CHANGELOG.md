@@ -1,7 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+The format is based on [Keep a Changelog](https://keepachangelog.com/),
+and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.2.3] - 2021-12-10
+### Changed
+- Makefile refactoring
+- disable install drop-in files to systemd directories by default,
+  instead it will be installed to package datadir as examples
+- improve documentation
 
 ## [0.2.2] - 2021-12-04
 ### Changed

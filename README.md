@@ -38,22 +38,28 @@ For redirect ports by upnpc-daemon you need:
 See INSTALL.md file
 
 ## Configuration
-After files installation you need to specify a ports for redirecting in *ports.conf*.
-This file contain some examples. Environment variables must follow the naming and
-numbering order exactly, do not use next var numbers with not defined previous - 
-it will be cause of stopping processing. You can also adjust the update interval in
-*schedule.conf*, default it set to 9 min since my test router has a 10-minute removal
-period for unused redirects.
-Drop-in files are installing to */usr/local/lib/systemd/system/upnpc-daemon.{service,timer}.d*
-by default. Execute `# systemctl daemon-reload` after editing drop-in files to apply the
-changes. Enable systemd timer by executing `# systemctl enable --now upnpc-daemon.timer`
+After files installation you need to specify a ports for redirecting.
+This can be done by `# systemctl edit upnpc-daemon.service`, or editing
+the a drop-in files supplied with the package. Drop-in files are installing
+to package datadir, */usr/local/share/upnpc-daemon* by default and contains
+a configuration examples. Configure script receives an --enable-dropins option
+for installing it in appropriated systemd directories:
+*/usr/local/lib/systemd/system/upnpc-daemon.{service,timer}.d*. *ports.conf*
+is a point for set ports needs be opening. Environment variables must follow
+the naming and numbering order exactly, do not use next var numbers with not
+defined previous - it will be cause of stopping processing. You can also adjust
+the update interval in *schedule.conf*, default it set to 9 min since my test
+router has a 10-minute removal period for unused redirects. You can
+`# systemctl edit upnpc-daemon.timer` instead. Execute `# systemctl daemon-reload`
+after editing drop-in files to apply the changes. Enable systemd timer by
+executing `# systemctl enable --now upnpc-daemon.timer`.
 Now you can check ports redirecting. For debugging, you can first of all
 check the output of upnpc-daemon unit like `# journalctl -r --unit=upnpc-daemon`
 Don't forget about firewall configuration if it applicable.
 
 ## Distribution
 For get a latest version `$ git clone git@github.com:svalx/upnpc-daemon.git`  
-openSUSE and CentOS/RHEL/OL 8 rpm packages can be found in Open Build Service at  
+openSUSE/SLE and CentOS/RHEL/OL 8 rpm packages can be found in Open Build Service at  
 [Open Build Service](https://software.opensuse.org/package/upnpc-daemon)
 
 ## Limitations

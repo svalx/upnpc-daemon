@@ -6,60 +6,54 @@ INSTALL_DIRS = ./tools/mkinstalldirs
 RM = /usr/bin/rm -rf
 LN = /usr/bin/ln -sf
 
-#Directories with DESTDIR support
-libexecdir := $(DESTDIR)${libexecdir}
-unitdir := $(DESTDIR)$(PREFIX)/lib/systemd/system
-portsdir = $(DESTDIR)$(sysconfdir)/systemd/system/$(basename).service.d
-scheduledir = $(DESTDIR)$(sysconfdir)/systemd/system/$(basename).timer.d
-sbindir := $(DESTDIR)$(sbindir)
-docdir := $(DESTDIR)${docdir}/${pkgname}
-
 #Files
-basename := upnpc-daemon
-scriptname := upnpc-redirect
-exec = $(scriptname)
-serviceunit = $(basename).service
-timerunit = $(basename).timer
-units = $(serviceunit) $(timerunit)
-ports.conf = ports.conf
-schedule.conf = schedule.conf
-drop-ins = $(ports.conf) $(schedule.conf)
-allfiles = $(exec) $(drop-ins) $(units)
-service := /usr/sbin/service
-pkg=$(pkgname)-$(pkgversion)
-rcname ?= $(sbindir)/rc$(basename)
+exec := upnpc-redirect
+serviceunit := $(pkgname).service
+units = $(serviceunit) $(pkgname).timer 
+drop-ins := ports.conf schedule.conf
+service ?= /usr/sbin/service
+pkg := $(pkgname)-$(pkgversion)
+docs := README.md CHANGELOG.md
+ifdef docdir
+install-doc := $(addprefix $(docdir)/,$(docs))
+endif
 
-.PHONY: all installdirs install uninstall install-doc uninstall-doc clean distclean dist
+.PHONY: all installdirs install uninstall uninstall-doc rpm \
+       	clean distclean dist install-drop-ins uninstall-drop-ins
 
-all: $(allfiles)
+all: $(exec) $(drop-ins) $(units)
 
 $(serviceunit): $(srcdir)/$(serviceunit).in
 	cp $^ $@
-	echo ExecStart=-$(libexecdir)/$(scriptname) >> $@
+	echo ExecStart=-$(libexecdir)/$(exec) >> $@
 
 $(rcname):
 	$(LN) $(service) $@
 
-installdirs: $(INSTALL_DIRS)
-	$^ $(sbindir) $(libexecdir) ${unitdir} $(portsdir) $(scheduledir)
+installdirs:
+	@$(INSTALL_DIRS) $(dir $(rcname)) $(portsdir) $(scheduledir) \
+                        $(libexecdir) $(unitdir) $(docdir)
 
-install-doc: README.md
-	$(INSTALL_DIRS) $(docdir)
+$(install-doc): $(docs)
 	$(INSTALL_DATA) $^ $(docdir)
 
-install: all installdirs $(rcname) $(installdoc)
+install-drop-ins: $(dropins)
+	$(INSTALL_DATA) ports.conf $(portsdir)
+	$(INSTALL_DATA) schedule.conf $(scheduledir)
+
+install: all installdirs install-drop-ins $(install-doc) $(rcname)
 	$(INSTALL_PROGRAM) $(exec) $(libexecdir)
 	$(INSTALL_DATA) $(units) $(unitdir)
-	$(INSTALL_DATA) $(ports.conf) $(portsdir)
-	$(INSTALL_DATA) $(schedule.conf) $(scheduledir)
 
 uninstall-doc:
 	$(RM) $(docdir)
+
+uninstall-drop-ins:
+	$(RM) $(portsdir) $(scheduledir) 
 	
-uninstall: uninstall-doc
+uninstall: uninstall-doc uninstall-drop-ins
 	$(RM) $(addprefix $(unitdir)/,$(units)) \
-              $(libexecdir)/$(scriptname) \
-              $(portsdir) $(scheduledir) $(rcname)
+              $(libexecdir)/$(exec) $(rcname)
 
 clean:
 	$(RM) $(serviceunit) $(pkg).tar.gz
@@ -75,7 +69,7 @@ Makefile: ${srcdir}/Makefile.in VERSION config.status
 
 # Not impliemented yet
 rpm: $(pkgname).spec
-		rpmbuild -ba --clean $<
+	rpmbuild -ba --clean $<
 
 distclean: clean
 	$(RM) Makefile config.status

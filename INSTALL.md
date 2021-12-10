@@ -37,7 +37,8 @@ Some installation properties may be set by configure script:
  - install paths
  - source directories
  - softlink creation to *service* binary
- - README.md installation in a packages docdir
+ - README.md installation to a package docdir
+ - systemd drop-in files installations to goal directories
 
 **Type `./configure --help` for full usage instructions.**  
 After *configure* executed, it create a *config.status* script, that store
