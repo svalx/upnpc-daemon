@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 - drop-in files installs to docdir/examples when --enabled-installdoc
 - never installs drop-in files to datadir
+- move drop-in files to examples directory
 
 ## [0.2.3] - 2021-12-10
 ### Changed

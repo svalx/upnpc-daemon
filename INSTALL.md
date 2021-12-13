@@ -66,8 +66,8 @@ You may manually install upnpc-daemon, it's not so difficult:
    For set a ports that need be forwarded and custom update schedule
    you can install a drop-in files (not necessary, аn another option
    for tune settings using `systemctl edit` tool):  
-   `# install -m 644 -D -t /etc/systemd/system/upnpc-daemon.service.d ports.conf`
-   `# install -m 644 -D -t /etc/systemd/system/upnpc-daemon.timer.d schedule.conf`  
+   `# install -m 644 -D -t /etc/systemd/system/upnpc-daemon.service.d examples/ports.conf`
+   `# install -m 644 -D -t /etc/systemd/system/upnpc-daemon.timer.d examples/schedule.conf`  
    If these directories do not exist, then they need to be created. Note you'll
    probably need superuser privileges for this and next actions. 
 5. Optionally, you can create a softlink */usr/local/sbin/rcupnpc-daemon* to
@@ -76,6 +76,6 @@ You may manually install upnpc-daemon, it's not so difficult:
    Also you can install README.md and drop-in files examples in the
    directory tree to have usage instructions at hand:  
    `# mkdir -p /usr/local/share/doc/upnpc-daemon/examples`  
-   `# install -m 644 README.md /usr/local/share/doc/upnpc-daemon`
-   `# install -m 644 ports.conf schedule.conf /usr/local/share/doc/upnpc-daemon/examples`  
+   `# install -m 644 README.md /usr/local/share/doc/upnpc-daemon`  
+   `# install -m 644 examples/* /usr/local/share/doc/upnpc-daemon/examples`  
 *install-sh* and *mkinstalldirs* scrips available in the *tools* subdirectory, it can be used for safe directory creations and file installation if native install tool not avalilable.

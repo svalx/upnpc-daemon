@@ -10,14 +10,14 @@ LN = /usr/bin/ln -sf
 exec := upnpc-redirect
 serviceunit := $(pkgname).service
 units = $(serviceunit) $(pkgname).timer 
-drop-ins := ports.conf schedule.conf
+drop-ins := examples/ports.conf examples/schedule.conf
 service ?= /usr/sbin/service
 pkg := $(pkgname)-$(pkgversion)
 docs := README.md
 ifdef docdir
 examples := $(docdir)/examples
 install-doc := $(addprefix $(docdir)/,$(docs)) \
-               $(addprefix $(examples)/,$(drop-ins))
+               $(addprefix $(examples)/,$(notdir $(drop-ins)))
 endif
 ifdef portsdir
 install-drop-ins = $(portsdir)/ports.conf $(scheduledir)/schedule.conf
@@ -44,8 +44,8 @@ $(install-doc): $(docs) $(drop-ins)
 	$(INSTALL_DATA) $(drop-ins) $(examples)
 
 $(install-drop-ins): $(drop-ins)
-	$(INSTALL_DATA) ports.conf $(portsdir)
-	$(INSTALL_DATA) schedule.conf $(scheduledir)
+	$(INSTALL_DATA) examples/ports.conf $(portsdir)
+	$(INSTALL_DATA) examples/schedule.conf $(scheduledir)
 
 install: all installdirs $(install-drop-ins) $(install-doc) $(rcname)
 	$(INSTALL_PROGRAM) $(exec) $(libexecdir)

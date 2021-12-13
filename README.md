@@ -15,16 +15,16 @@ The upnpc-daemon contain following files:
  - *src/Makefile.in*             - constant part of package Makefile
  - *upnpc-daemon.timer*          - timer to start upnpc-daemon.service
  - *upnpc-redirect*              - a bash script called by upnpc-daemon.service
- - *ports.conf*                  - drop-in file for the upnpc-daemon.service
- - *schedule.conf*               - drop-in file for the upnpc-daemon.timer
+ - *examples/ports.conf*         - drop-in file for the upnpc-daemon.service
+ - *examples/schedule.conf*      - drop-in file for the upnpc-daemon.timer
  - *VERSION*                     - this file cotaine a version number of package
  - *CHANGELOG.md*                - all notable changes to this project
  - *INSTALL.md*                  - installation instructions
  - *COPYING*                     - GNU GPL
  - *configure*                   - configure script
  - *README.md*                   - this file
- - *install-sh*                  - shell version of install utility 
- - *mkinstalldirs*               - standard tool for create directories by
+ - *tools/install-sh*            - shell version of install utility 
+ - *tools/mkinstalldirs*         - standard tool for create directories by
                                    installdirs target of Makefile
 
 ## Requirements
