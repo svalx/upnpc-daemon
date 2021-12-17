@@ -1,30 +1,59 @@
 #Commands
 INSTALL ?= /usr/bin/install
-INSTALL_PROGRAM = $(INSTALL)
-INSTALL_DATA = $(INSTALL) -m 644
-INSTALL_DIRS = ./tools/mkinstalldirs
-RM = /usr/bin/rm -rf
-LN = /usr/bin/ln -sf
+INSTALL_PROGRAM := $(INSTALL)
+INSTALL_DATA := $(INSTALL) -m 644
+INSTALL_DIRS := ./tools/mkinstalldirs
+RM := /usr/bin/rm -rf
+LN := /usr/bin/ln -sf
+CMP := /usr/bin/cmp -s
+TOUCH = /usr/bin/touch -c
 
-#Files
+#Files & directories
+FORCE ?= false
 exec := upnpc-redirect
 serviceunit := $(pkgname).service
-units = $(serviceunit) $(pkgname).timer 
-drop-ins := examples/ports.conf examples/schedule.conf
+units = $(serviceunit) $(pkgname).timer
+ports = ports.conf
+schedule = schedule.conf
+drop-ins := $(addprefix examples/,$(ports) $(schedule))
 service ?= /usr/sbin/service
 pkg := $(pkgname)-$(pkgversion)
 docs := README.md
 ifdef docdir
-examples := $(docdir)/examples
-install-doc := $(addprefix $(docdir)/,$(docs)) \
-               $(addprefix $(examples)/,$(notdir $(drop-ins)))
+  examples := $(docdir)/examples
+  install-doc := $(addprefix $(docdir)/,$(docs) $(drop-ins))
 endif
-ifdef portsdir
-install-drop-ins = $(portsdir)/ports.conf $(scheduledir)/schedule.conf
+# If drop-in file exists and different from new installing,
+# adding a '.new' suffix to a fresh installing to avoid
+# overwriting, but not force 
+ifdef portsdir # Trigger
+  install-drop-ins := install-drop-ins
+  install-ports := $(portsdir)/$(ports)
+  install-schedule := $(scheduledir)/$(schedule)
+  $(shell $(CMP) examples/$(ports) $(portsdir)/$(ports))
+  ifeq ($(.SHELLSTATUS),1)
+    ifneq ($(FORCE),true)
+      install-ports +=.new
+    else
+      force-install += $(install-ports)
+    endif
+  endif
+  $(shell $(CMP) examples/$(schedule) $(scheduledir)/$(schedule))
+  ifeq ($(.SHELLSTATUS),1)
+    ifneq ($(FORCE),true)
+      install-schedule +=.new
+    else
+      force-install += $(install-schedule)
+    endif
+  endif
 endif
+installdirs := $(dir $(rcname)) $(portsdir) $(scheduledir) \
+                        $(libexecdir) $(unitdir) $(examples)
+tarball := $(pkg).tar.gz
+install-main := $(libexecdir)/$(exec) $(unitdir)/$(units)
 
-.PHONY: all installdirs install uninstall uninstall-doc rpm \
-       	clean distclean dist uninstall-drop-ins
+.PHONY: all install uninstall uninstall-doc rpm $(force-install) \
+       	clean distclean dist install-drop-ins uninstall-drop-ins
 
 all: $(exec) $(drop-ins) $(units)
 
@@ -35,27 +64,44 @@ $(serviceunit): $(srcdir)/$(serviceunit).in
 $(rcname):
 	$(LN) $(service) $@
 
-installdirs:
-	@$(INSTALL_DIRS) $(dir $(rcname)) $(portsdir) $(scheduledir) \
-                        $(libexecdir) $(unitdir) $(docdir) $(examples)
+$(installdirs): $(INSTALL_DIRS)
+	@$^ $@
 
 $(install-doc): $(docs) $(drop-ins)
 	$(INSTALL_DATA) $(docs) $(docdir)
 	$(INSTALL_DATA) $(drop-ins) $(examples)
 
-$(install-drop-ins): $(drop-ins)
-	$(INSTALL_DATA) examples/ports.conf $(portsdir)
-	$(INSTALL_DATA) examples/schedule.conf $(scheduledir)
+$(install-ports):
+	$(INSTALL_DATA) examples/$(ports) \
+	$(portsdir)/$(ports)$(ports_suffix)
 
-install: all installdirs $(install-drop-ins) $(install-doc) $(rcname)
+$(install-schedule):
+	$(INSTALL_DATA) examples/$(schedule) \
+	$(scheduledir)/$(schedule)$(schedule_suffix)
+
+install-drop-ins: $(drop-ins) $(install-ports) $(install-schedule)
+
+$(install-main):
 	$(INSTALL_PROGRAM) $(exec) $(libexecdir)
 	$(INSTALL_DATA) $(units) $(unitdir)
+
+install: all $(installdirs) $(install-main) $(install-drop-ins) \
+	$(install-doc) $(rcname)
 
 uninstall-doc:
 	$(RM) $(docdir)
 
 uninstall-drop-ins:
-	$(RM) $(portsdir) $(scheduledir) 
+# Skip changed drop-in files with directories if no force delete
+# Use 'make uninstall FORCE=true' for remove them in any case
+	@($(CMP) $(portsdir)/ports.conf examples/ports.conf \
+	|| $(FORCE)) && $(RM) $(portsdir) && echo \
+	"Delete $(portsdir)" \
+	|| echo "Skip changed $(portsdir)/ports.conf"
+	@($(CMP) $(scheduledir)/schedule.conf examples/schedule.conf \
+	|| $(FORCE)) && $(RM) $(scheduledir) && echo \
+	"Delete $(scheduledir)" \
+	|| echo "Skip changed $(scheduledir)/schedule.conf"
 	
 uninstall: uninstall-doc uninstall-drop-ins
 	$(RM) $(addprefix $(unitdir)/,$(units)) \
@@ -64,18 +110,17 @@ uninstall: uninstall-doc uninstall-drop-ins
 clean:
 	$(RM) $(serviceunit) $(pkg).tar.gz
 
-dist: distclean
-	@echo "Creating $(pkg).tar.gz..."
-	$(INSTALL_DIRS) $(pkg) && cd $(pkg) && $(LN) ../* . && $(RM) $(pkg)
-	tar -chzf $(pkg).tar.gz $(pkg) && $(RM) $(pkg)
+$(tarball):
+	@echo "Creating $@..."
+	$(INSTALL_DIRS) $(pkg) && cd $(pkg) && $(LN) ../* . && \
+	$(RM) $(pkg) Makefile config.status
+	tar -chzf $@ $(pkg) && $(RM) $(pkg)
+
+dist: clean $(tarball)
 
 Makefile: ${srcdir}/Makefile.in VERSION config.status
-	$(RM) Makefile
+	$(RM) $@
 	./config.status
-
-# Not impliemented yet
-rpm: $(pkgname).spec
-	rpmbuild -ba --clean $<
 
 distclean: clean
 	$(RM) Makefile config.status

@@ -35,7 +35,7 @@ For redirect ports by upnpc-daemon you need:
  - Bash 4.2 or higher
 
 ## Installation
-See INSTALL.md file
+See INSTALL.md. This file also contain a Upgrade and Uninstall sections.
 
 ## Configuration
 After files installation you need to specify a ports for redirecting.
@@ -62,8 +62,8 @@ Don't forget about firewall configuration if it applicable.
 
 ## Distribution
 For get a latest version `$ git clone git@github.com:svalx/upnpc-daemon.git`  
-openSUSE/SLE and CentOS/RHEL/OL 8 rpm packages can be found in Open Build Service at  
-[Open Build Service](https://software.opensuse.org/package/upnpc-daemon)
+openSUSE/SLE and CentOS/RHEL/OL 8 rpm packages can be found in [Open Build Service]
+(https://software.opensuse.org/package/upnpc-daemon)
 
 ## Limitations
  - Not all routers can redirect ports from privileged range

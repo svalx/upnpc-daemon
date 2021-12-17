@@ -5,7 +5,7 @@ You may install upnpc-daemon in a different ways:
  - manually - if for some reason the previous option is not suitable
 ____
 
-## Installing Linux package
+## Installing Linux package manager
 At this moment available rpm packages in [Open Build Service](https://software.opensuse.org/package/upnpc-daemon) for openSUSE Leap 15.3/SLE 15 SP3 and CentOS/RHEL/OL 8:  
 ### openSUSE Leap 15.3/SLE 15 SP3
     # zypper addrepo --repo https://download.opensuse.org/repositories/home:/svalx/15.3/home:svalx.repo
@@ -78,4 +78,56 @@ You may manually install upnpc-daemon, it's not so difficult:
    `# mkdir -p /usr/local/share/doc/upnpc-daemon/examples`  
    `# install -m 644 README.md /usr/local/share/doc/upnpc-daemon`  
    `# install -m 644 examples/* /usr/local/share/doc/upnpc-daemon/examples`  
-*install-sh* and *mkinstalldirs* scrips available in the *tools* subdirectory, it can be used for safe directory creations and file installation if native install tool not avalilable.
+*install-sh* and *mkinstalldirs* scrips available in the *tools* subdirectory,
+it can be used for safe directory creations and file installation if native
+install tool not avalilable.
+
+# Upgrade instructions
+Usually you need to follow the original installation method to upgrade, but *make* and
+manual methods can be mixed, although this is undesirable.
+
+## Upgrade by Linux package manager
+In this case, the package maintainer should take care of everything for you.
+For example, the rpm package will save all sensitive settings and configure
+systemd services.
+
+## Upgrade by make
+Not needed to uninstall upnpc-daemon for upgrade, you can safe do it by
+`# make install` and don't worry about lost your settings. By default, installation
+system checks your drop-in files (only they contain any settings) for a changes,
+and if differences are found, those new ones creating with a '.new' suffix, that avoid
+overwriting. This behavior can be changed by using *FORCE* variable when 'make install':  
+    # make install FORCE=true  
+Set *FORCE* to *true* tell installation system to force overwrite drop-in file anyway.
+Don't use another *FORCE* values except *true*, it used in bash commands.  
+Untar new package version next to the previous one and follow the general
+install instructions.
+
+## Manual upgrade
+Read CANGELOG.md, compare files and decide whether to replace/delete/install new ones.
+Be careful with these drop-in files, because they contain ports settings and update
+schedule. It is necessary to launch `# systemctl daemon-reload` end check units status
+after upgrade.
+
+# Uninstall instructions
+When you uninstall upnpc-daemon, systemd drop-in files normally remain
+in their directories for a future installations. Remove they are manually
+or use *FORCE*=true in case of *make* using.
+
+## Uninstall by Linux package manager
+### openSUSE Leap 15.3/SLE 15 SP3
+    # zypper remove upnpc-daemon
+### CentOS/RHEL/OL 8
+    # dnf remove upnpc-daemon
+
+## Uninstall by make
+    # make uninstall
+Drop-in files will be left if it different from orirginal.
+    # make uninstall FORCE=true
+In second case drop-in file will be deleted anyway with their directories.
+
+## Manual uninstall
+Follow the installation instructions only in reverse order and sense. Disable
+systemd timer by `# systemctl disable upnpc-daemon.timer` and delete all files
+and directories that you created.
+

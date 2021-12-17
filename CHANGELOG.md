@@ -4,10 +4,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.2.4] - 2021-12-17
+### Added
+- `make uninstall` skipping drop-in files deletion if they are changed
+- when drop-in files already installed in target directories and
+  have a content other than the new ones, new drop-in files installs
+  with а *.new* suffix and do not overwrite existing files
+- added a *FORCE* makefile variable that affects install and uninstall
+  targets - it force overwrite/delete changed drop-in files in the
+  mentioned operations if set to true:  
+    `make install FORCE=true`
+    `make uninstall FORCE=true`
+    
 ### Changed
+- move drop-in files to *examples* under project directory
 - drop-in files installs to docdir/examples when --enabled-installdoc
-- never installs drop-in files to datadir
-- move drop-in files to examples directory
+  and never to datadir
 
 ## [0.2.3] - 2021-12-10
 ### Changed
@@ -18,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [0.2.2] - 2021-12-04
 ### Changed
-- drop-in files directories moved to /etc
+- drop-in files install directories moved to /etc
 - a more suitable OBS URL
 
 ## [0.2.1] - 2021-12-03
