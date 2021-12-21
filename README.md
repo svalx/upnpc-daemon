@@ -40,16 +40,18 @@ See INSTALL.md. This file also contain a Upgrade and Uninstall sections.
 ## Configuration
 After files installation you need to specify a ports for redirecting.
 This can be done by `# systemctl edit upnpc-daemon.service`, or by editing
-the a drop-in files supplied with the package. Drop-in files are installing
+the a drop-in file supplied with the package. Drop-in files are installing
 to examples subdir under package docdir, when enabled by configure, and
 contains a configuration examples:
 */usr/local/share/doc/packages/upnpc-daemon/examples*
 Configure script also receives an *--enable-dropins* option for installing
 drop-in files to appropriated systemd directories:
 */etc/systemd/system/upnpc-daemon.{service,timer}.d*.  
-**ports.conf** is a point for set ports needs be opening. Environment variables
-must follow the naming and numbering order exactly, do not use next var numbers
-with not defined previous - it will be cause of stopping processing.  
+**ports.conf** is a point for set ports needs be opening. RPM package also
+install this config fille to */etc/systemd/system/upnpc-daemon.service.d.  
+Environment variables must follow the naming and numbering order exactly,
+do not use next var numbers with not defined previous - it will be cause
+of stopping processing.  
 There is a possibility to adjust the update interval in **schedule.conf**,
 default it set to 9 min since my test router has a 10-minute removal period
 for unused redirects. You can `# systemctl edit upnpc-daemon.timer` instead.  

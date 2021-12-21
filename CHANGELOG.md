@@ -14,8 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - added a *FORCE* makefile variable that affects install and uninstall
   targets - it force overwrite/delete changed drop-in files in the
   mentioned operations if set to true:  
-    `make install FORCE=true`
-    `make uninstall FORCE=true`
+    `# make install FORCE=true`  
+    `# make uninstall FORCE=true`
     
 ### Changed
 - move drop-in files to *examples* under project directory

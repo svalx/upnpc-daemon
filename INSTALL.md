@@ -97,7 +97,7 @@ Not needed to uninstall upnpc-daemon for upgrade, you can safe do it by
 system checks your drop-in files (only they contain any settings) for a changes,
 and if differences are found, those new ones creating with a '.new' suffix, that avoid
 overwriting. This behavior can be changed by using *FORCE* variable when 'make install':  
-    # make install FORCE=true  
+    `# make install FORCE=true`  
 Set *FORCE* to *true* tell installation system to force overwrite drop-in file anyway.
 Don't use another *FORCE* values except *true*, it used in bash commands.  
 Untar new package version next to the previous one and follow the general
@@ -110,9 +110,8 @@ schedule. It is necessary to launch `# systemctl daemon-reload` end check units 
 after upgrade.
 
 # Uninstall instructions
-When you uninstall upnpc-daemon, systemd drop-in files normally remain
-in their directories for a future installations. Remove they are manually
-or use *FORCE*=true in case of *make* using.
+After uninslallation execute:
+    `# systemctl daemon-reload`
 
 ## Uninstall by Linux package manager
 ### openSUSE Leap 15.3/SLE 15 SP3
@@ -121,9 +120,14 @@ or use *FORCE*=true in case of *make* using.
     # dnf remove upnpc-daemon
 
 ## Uninstall by make
-    # make uninstall
-Drop-in files will be left if it different from orirginal.
-    # make uninstall FORCE=true
+When you uninstall upnpc-daemon, systemd drop-in files normally remain
+in their directories for a future installations. Remove they are manually
+or use *FORCE*=true in case of *make* using. 
+Disable systemd timer by  
+   `# systemctl disable upnpc-daemon.timer`  
+Then
+   `# make uninstall` or `# make uninstall FORCE=true`
+In first case drop-in files will be left if it different from orirginal.  
 In second case drop-in file will be deleted anyway with their directories.
 
 ## Manual uninstall
